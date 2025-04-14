@@ -21,12 +21,7 @@ A feature-rich Todo List application built with Python and Tkinter.
 
 ## Installation
 
-1. Install the required packages:
-   ```
-   pip install -r requirements.txt
-   ```
-
-2. Run the application:
+1. Run the application:
    ```
    python todo_app.py
    ```

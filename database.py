@@ -76,10 +76,13 @@ def search_tasks(keyword):
 def filter_tasks_by_status(status):
     conn = db.connect("data.db")
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT * FROM tasks
-        WHERE status = ?;
-    """, (status,))
+    if status == "all":
+        cursor.execute("SELECT * FROM tasks;")
+    else:
+        cursor.execute("""
+            SELECT * FROM tasks
+            WHERE status = ?;
+        """, (status,))
     tasks = cursor.fetchall()
     conn.close()
     return tasks
