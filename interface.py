@@ -5,8 +5,8 @@ import database as db
 from datetime import datetime
 
 class TodoList:
-    def __init__(self):
-        self.root = Tk()
+    def __init__(self, root):
+        self.root = root
         self.root.title("Modern Todo List")
         self.root.geometry("1000x600")
         self.root.configure(bg="#2C3E50")  # Dark blue-gray background
@@ -100,42 +100,42 @@ class TodoList:
 
         # Add Button
         add_button = Button(left_panel, text="Add Task", 
-                          bg="#1ABC9C", fg="#ECF0F1",
-                          activebackground="#16A085",  # darker shade for click
-                          activeforeground="#ffffff",
-                          font=("Helvetica", 10, "bold"),
-                          pady=5,
-                          command=self.add_task)
+                            bg="#1ABC9C", fg="#ECF0F1",
+                            activebackground="#16A085",  
+                            activeforeground="#ffffff",
+                            font=("Helvetica", 10, "bold"),
+                            pady=5,
+                            command=self.add_task)
         add_button.pack(fill=X, pady=(0, 10))
 
         # Edit Button
         edit_button = Button(left_panel, text="Edit Task",
-                           bg="#F39C12", fg="#ECF0F1",
-                           activebackground="#D68910",  # darker shade for click
-                           activeforeground="#ffffff",
-                           font=("Helvetica", 10, "bold"),
-                           pady=5,
-                           command=self.edit_task)
+                            bg="#F39C12", fg="#ECF0F1",
+                            activebackground="#D68910",  
+                            activeforeground="#ffffff",
+                            font=("Helvetica", 10, "bold"),
+                            pady=5,
+                            command=self.edit_task)
         edit_button.pack(fill=X, pady=(0, 10))
 
         # Delete Button
         delete_button = Button(left_panel, text="Delete Task",
-                             bg="#E74C3C", fg="#ECF0F1",
-                             activebackground="#CB4335",  # darker shade for click
-                             activeforeground="#ffffff",
-                             font=("Helvetica", 10, "bold"),
-                             pady=5,
-                             command=self.delete_task)
+                                bg="#E74C3C", fg="#ECF0F1",
+                                activebackground="#CB4335",  
+                                activeforeground="#ffffff",
+                                font=("Helvetica", 10, "bold"),
+                                pady=5,
+                                command=self.delete_task)
         delete_button.pack(fill=X, pady=(0, 10))
 
         # Mark as Complete/Incomplete Button
         toggle_button = Button(left_panel, text="Toggle Complete",
-                             bg="#3498DB", fg="#ECF0F1",
-                             activebackground="#2E86C1",  # darker shade for click
-                             activeforeground="#ffffff",
-                             font=("Helvetica", 10, "bold"),
-                             pady=5,
-                             command=self.toggle_complete)
+                                bg="#3498DB", fg="#ECF0F1",
+                                activebackground="#2E86C1",  
+                                activeforeground="#ffffff",
+                                font=("Helvetica", 10, "bold"),
+                                pady=5,
+                                command=self.toggle_complete)
         toggle_button.pack(fill=X, pady=(0, 10))
 
         # Right Panel - Task List
@@ -155,11 +155,11 @@ class TodoList:
 
         # Search Button
         search_button = Button(control_frame, text="Search",
-                             bg="#1ABC9C", fg="#ECF0F1",
-                             activebackground="#16A085",  # darker shade for click
-                             activeforeground="#ffffff",
-                             font=("Helvetica", 10, "bold"),
-                             command=self.search_task)
+                                bg="#1ABC9C", fg="#ECF0F1",
+                                activebackground="#16A085",  
+                                activeforeground="#ffffff",
+                                font=("Helvetica", 10, "bold"),
+                                command=self.search_task)
         search_button.pack(side=LEFT, padx=5)
 
         # Filter
@@ -192,16 +192,48 @@ class TodoList:
         scrollbar = ttk.Scrollbar(right_panel, orient=VERTICAL, command=self.tree.yview, style="Vertical.TScrollbar")
         self.tree.configure(yscroll=scrollbar.set)
         
+        self.tree.tag_configure('evenrow', background="#ffffff")
+        self.tree.tag_configure('oddrow', background="#ebf5fb")
+        
         # Pack the treeview and scrollbar
         self.tree.pack(side=LEFT, fill=BOTH, expand=True, padx=(0, 10))
         scrollbar.pack(side=RIGHT, fill=Y)
+
+        # Sort column function
+        self.last_clicked = None
+        self.click_count = 0
+
+        def sort_column(clicked):
+            if self.last_clicked != clicked:
+                self.click_count = 0
+                self.last_clicked = clicked
+            self.click_count += 1
+            order = "DESC" if self.click_count % 2 == 0 else "ASC"
+
+            # Clear the current task list
+            self.tree.delete(*self.tree.get_children())
+
+            # Fetch sorted tasks from the database
+            tasks = db.sort_tasks(clicked, order)
+
+            # Populate the treeview with sorted tasks
+            for index, task in enumerate(tasks):
+                tag = "evenrow" if index % 2 == 0 else "oddrow"
+                self.tree.insert("", "end", values=task, tags=(tag,))
+
+            self.last_clicked = clicked
+
+        # Bind the sort_column function to column headers
+        for column_name in ('id', 'title', 'description', 'due_date', 'status'):
+            self.tree.heading(column_name, text=column_name.title(), command=lambda c=column_name: sort_column(c))
 
     def load_task_list(self):
         #Clear the exeisting task list
         self.tree.delete(*self.tree.get_children())
         tasks = db.get_all_tasks()
-        for task in tasks:
-            self.tree.insert('', 'end', values=task)
+        for index, task in enumerate(tasks):
+            tag = 'evenrow' if index % 2 == 0 else 'oddrow'
+            self.tree.insert('', 'end', values=task, tags=(tag,))
 
     def get_selected_task(self):
         selected = self.tree.focus()  # Get selected item ID
@@ -227,6 +259,7 @@ class TodoList:
         self.title_entry.delete(0, END)
         self.desc_entry.delete("1.0", "end")
         self.due_date_entry.delete(0, END)
+        messagebox.showinfo("Success", "Task added successfully!")
         self.load_task_list()
 
     def edit_task(self):
@@ -239,28 +272,36 @@ class TodoList:
             new_window.title("Edit Task")
             new_window.geometry("400x500+750+400")
             new_window.resizable(False, False)
+            new_window.configure(bg="#34495E")  # Darker blue-gray background
 
-            tk.Label(new_window, text="Title:").pack()
-            title_entry = Entry(new_window, font=("Arial", 12))
+            # Title Label
+            tk.Label(new_window, text="Edit Task", font=("Helvetica", 16, "bold"), bg="#34495E", fg="#ECF0F1").pack(pady=10)
+
+            # Title Entry
+            tk.Label(new_window, text="Title:", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
+            title_entry = Entry(new_window, font=("Helvetica", 12), bg="#ECF0F1", fg="#2C3E50", relief=FLAT)
             title_entry.insert(0, task[1])  # Pre-fill with current title
-            title_entry.pack(fill="x", pady=10, padx=10)
+            title_entry.pack(fill="x", pady=5, padx=10)
 
-            tk.Label(new_window, text="Description:").pack()
-            desc_entry = Text(new_window, font=("Arial", 12), height=5)
+            # Description Entry
+            tk.Label(new_window, text="Description:", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
+            desc_entry = Text(new_window, font=("Helvetica", 12), height=5, bg="#ECF0F1", fg="#2C3E50", relief=FLAT)
             desc_entry.insert("1.0", task[2])  # Pre-fill with current description
-            desc_entry.pack(fill="x", pady=10, padx=10)
+            desc_entry.pack(fill="x", pady=5, padx=10)
 
-            tk.Label(new_window, text="Due Date (YYYY-MM-DD):").pack()
-            due_date_entry = Entry(new_window, font=("Arial", 12))
+            # Due Date Entry
+            tk.Label(new_window, text="Due Date (YYYY-MM-DD):", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
+            due_date_entry = Entry(new_window, font=("Helvetica", 12), bg="#ECF0F1", fg="#2C3E50", relief=FLAT)
             due_date_entry.insert(0, task[3])  # Pre-fill with current due date
-            due_date_entry.pack(fill="x", pady=10, padx=10)
+            due_date_entry.pack(fill="x", pady=5, padx=10)
 
-            tk.Label(new_window, text="Status:").pack()
+            # Status Radio Buttons
+            tk.Label(new_window, text="Status:", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
             status_var = StringVar(value=task[4])  # Pre-fill with current status
-            status_frame = Frame(new_window)
-            status_frame.pack(fill="x", pady=10, padx=10)
-            Radiobutton(status_frame, text="Pending", variable=status_var, value="pending").pack(side=LEFT)
-            Radiobutton(status_frame, text="Completed", variable=status_var, value="completed").pack(side=LEFT)
+            status_frame = Frame(new_window, bg="#34495E")
+            status_frame.pack(fill="x", pady=5, padx=10)
+            Radiobutton(status_frame, text="Pending", variable=status_var, value="pending", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50").pack(side=LEFT, padx=5)
+            Radiobutton(status_frame, text="Completed", variable=status_var, value="completed", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50").pack(side=LEFT, padx=5)
 
             def save_changes():
                 new_title = title_entry.get()
@@ -278,6 +319,7 @@ class TodoList:
                 db.update_task(task[0], new_title, new_description, new_due_date, new_status)
                 self.load_task_list()
                 new_window.destroy()
+                messagebox.showinfo("Success", "Task updated successfully!")
 
             def undo_changes():
                 new_window.destroy()
@@ -363,37 +405,10 @@ class TodoList:
         tasks = db.filter_tasks_by_status(status)
         
         # Reinsert tasks with preserved styling
-        for task in tasks:
-            self.tree.insert('', 'end', values=task)
-            
-        # Ensure scrollbar remains visible and styled
-        self.tree.update_idletasks()
-
-        # Sort column function
-        self.last_clicked = None
-        self.click_count = None
-        def sort_column(clicked):
-            global count
-            count = 0
-            if self.last_clicked != clicked:
-                self.click_count = 0
-                self.last_clicked = clicked
-            self.click_count += 1
-            order = "DESC" if self.click_count % 2 == 0 else "ASC"
-            self.tree.delete(*self.tree.get_children())
-            products = db.sort_products(clicked, order)
-            for product in products:
-                if count % 2 == 0:
-                    self.my_tree.insert("", "end", values=product)
-                else:
-                    self.my_tree.insert("", "end", values=product)
-                count += 1
-            self.last_clicked = clicked
+        for index, task in enumerate(tasks):
+            tag = 'evenrow' if index % 2 == 0 else 'oddrow'
+            self.tree.insert('', 'end', values=task, tags=(tag,))
 
     def run(self):
-        """Start the application"""
+        # Run the main loop from the class
         self.root.mainloop()
-
-if __name__ == "__main__":
-    app = TodoList()
-    app.run()

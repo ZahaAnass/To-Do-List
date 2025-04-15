@@ -2,11 +2,15 @@ from tkinter import *
 from interface import TodoList
 import database as db
 
+# Initialize the database
 db.connect_db()
 
 if __name__ == "__main__":
+    # Create the main application window
     root = Tk()
-    root.title("Todo List")
-    root.geometry("600x400")
+    
+    # Initialize the TodoList interface
     todo_list = TodoList(root)
-    root.mainloop()
+    
+    # Run the application
+    todo_list.run()

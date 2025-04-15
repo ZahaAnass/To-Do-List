@@ -87,10 +87,11 @@ def filter_tasks_by_status(status):
     conn.close()
     return tasks
 
-def sort_products(clicked, order):
+def sort_tasks(clicked, order):
     conn = db.connect("data.db")
     cursor = conn.cursor()
-    cursor.execute(f"select * from tasks order by {clicked} {order}")
-    products = cursor.fetchall()
+    query = f"SELECT * FROM tasks ORDER BY {clicked} {order}"
+    cursor.execute(query)
+    tasks = cursor.fetchall()
     conn.close()
-    return products
+    return tasks
