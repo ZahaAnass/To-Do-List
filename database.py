@@ -67,7 +67,7 @@ def search_tasks(keyword):
     cursor = conn.cursor()
     cursor.execute("""
         SELECT * FROM tasks
-        WHERE title LIKE ? OR description LIKE ?LIKE ?;
+        WHERE title LIKE ? OR description LIKE ?;
     """, (f"%{keyword}%", f"%{keyword}%"))
     tasks = cursor.fetchall()
     conn.close()
@@ -87,3 +87,10 @@ def filter_tasks_by_status(status):
     conn.close()
     return tasks
 
+def sort_products(clicked, order):
+    conn = db.connect("data.db")
+    cursor = conn.cursor()
+    cursor.execute(f"select * from tasks order by {clicked} {order}")
+    products = cursor.fetchall()
+    conn.close()
+    return products

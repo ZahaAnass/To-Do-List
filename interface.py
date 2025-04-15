@@ -9,114 +9,191 @@ class TodoList:
         self.root = Tk()
         self.root.title("Modern Todo List")
         self.root.geometry("1000x600")
-        self.root.configure(bg="#000000")
+        self.root.configure(bg="#2C3E50")  # Dark blue-gray background
         # Create GUI elements
         self.create_gui()
         self.load_task_list()
 
     def create_gui(self):
+        # Configure scrollbar style - simplified
+        style = ttk.Style()
+        style.theme_use('clam')
+        
+        # Simple scrollbar style
+        style.configure("Vertical.TScrollbar",
+                    background="#3498db",
+                    troughcolor="#f0f0f0",
+                    width=12,
+                    arrowsize=12)
+        
+        # Configure Treeview
+        style.configure("Treeview",
+                    background="#ffffff",
+                    foreground="#2C3E50",
+                    fieldbackground="#ffffff",
+                    rowheight=30)
+        
+        style.configure("Treeview.Heading",
+                    background="#3498db",
+                    foreground="white",
+                    relief="flat",
+                    font=('Helvetica', 10, 'bold'))
+        
+        # Configure Treeview colors and layout
+        style.configure("Treeview",
+                    background="#ffffff",
+                    foreground="#2C3E50",
+                    fieldbackground="#ffffff",
+                    rowheight=30,
+                    borderwidth=0,
+                    font=('Helvetica', 10))
+        
+        # Configure Treeview header
+        style.configure("Treeview.Heading",
+                    background="#3498db",
+                    foreground="white",
+                    relief="flat",
+                    font=('Helvetica', 10, 'bold'),
+                    padding=5)
+        
+        # Configure selection colors
+        style.map("Treeview",
+                background=[('selected', '#2980b9')],
+                foreground=[('selected', 'white')])
+        
+        # Configure header hover effect
+        style.map("Treeview.Heading",
+                background=[('active', '#2980b9')])
+
         # Left Panel - Task Input
-        left_panel = Frame(self.root, bg="#ffffff", padx=20, pady=20)
+        left_panel = Frame(self.root, bg="#34495E", padx=20, pady=20)  # Darker blue-gray background
         left_panel.pack(side=LEFT, fill=BOTH, expand=False, padx=10, pady=10)
 
         # Title
-        Label(left_panel, text="Add New Task", font=("Helvetica", 16, "bold"), bg="#ffffff").pack(anchor="w", pady=(0, 20))
+        Label(left_panel, text="Add New Task", font=("Helvetica", 16, "bold"), bg="#34495E", fg="#ECF0F1").pack(anchor="w", pady=(0, 20))
         
         # Task Title
-        Label(left_panel, text="Title:", bg="#ffffff").pack(anchor="w")
-        self.title_entry = Entry(left_panel, width=30)
+        Label(left_panel, text="Title:", bg="#34495E", fg="#ECF0F1").pack(anchor="w")
+        self.title_entry = Entry(left_panel, width=30, bg="#ECF0F1", fg="#2C3E50", relief=FLAT)
         self.title_entry.pack(anchor="w", pady=(0, 10), fill=X)
 
         # Description
-        Label(left_panel, text="Description:", bg="#ffffff").pack(anchor="w")
-        self.desc_entry = Text(left_panel, width=30, height=5)
+        Label(left_panel, text="Description:", bg="#34495E", fg="#ECF0F1").pack(anchor="w")
+        self.desc_entry = Text(left_panel, width=30, height=5, bg="#ECF0F1", fg="#2C3E50")
         self.desc_entry.pack(anchor="w", pady=(0, 10), fill=X)
 
         # Due Date
-        Label(left_panel, text="Due Date:", bg="#ffffff").pack(anchor="w")
-        self.due_date_entry = Entry(left_panel, width=30)
+        Label(left_panel, text="Due Date:", bg="#34495E", fg="#ECF0F1").pack(anchor="w")
+        self.due_date_entry = Entry(left_panel, width=30, bg="#ECF0F1", fg="#2C3E50")
         self.due_date_entry.insert(0, 'YYYY-MM-DD')
         self.due_date_entry.bind('<FocusIn>', lambda e: self.due_date_entry.delete(0, END) if self.due_date_entry.get() == 'YYYY-MM-DD' else None)
         self.due_date_entry.pack(anchor="w", pady=(0, 10), fill=X)
 
         # Status
-        Label(left_panel, text="Status:", bg="#ffffff").pack(anchor="w")
+        Label(left_panel, text="Status:", bg="#34495E", fg="#ECF0F1").pack(anchor="w")
         self.status_var = StringVar(value="pending")
-        status_frame = Frame(left_panel, bg="#ffffff")
+        status_frame = Frame(left_panel, bg="#34495E")
         status_frame.pack(anchor="w", pady=(0, 20), fill=X)
         
-        Radiobutton(status_frame, text="Pending", variable=self.status_var, value="pending", bg="#ffffff").pack(side=LEFT)
-        Radiobutton(status_frame, text="Completed", variable=self.status_var, value="completed", bg="#ffffff").pack(side=LEFT)
+        Radiobutton(status_frame, text="Pending", variable=self.status_var, value="pending", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50").pack(side=LEFT)
+        Radiobutton(status_frame, text="Completed", variable=self.status_var, value="completed", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50").pack(side=LEFT)
 
         # Add Button
-        Button(left_panel, text="Add Task", bg="#4CAF50", fg="white", 
-                font=("Helvetica", 10, "bold"), pady=5, command=self.add_task).pack(fill=X, pady=(0, 10))
+        add_button = Button(left_panel, text="Add Task", 
+                          bg="#1ABC9C", fg="#ECF0F1",
+                          activebackground="#16A085",  # darker shade for click
+                          activeforeground="#ffffff",
+                          font=("Helvetica", 10, "bold"),
+                          pady=5,
+                          command=self.add_task)
+        add_button.pack(fill=X, pady=(0, 10))
 
         # Edit Button
-        Button(left_panel, text="Edit Task", bg="#FFC107", fg="white", 
-                font=("Helvetica", 10, "bold"), pady=5, command=self.edit_task).pack(fill=X, pady=(0, 10))
+        edit_button = Button(left_panel, text="Edit Task",
+                           bg="#F39C12", fg="#ECF0F1",
+                           activebackground="#D68910",  # darker shade for click
+                           activeforeground="#ffffff",
+                           font=("Helvetica", 10, "bold"),
+                           pady=5,
+                           command=self.edit_task)
+        edit_button.pack(fill=X, pady=(0, 10))
 
         # Delete Button
-        Button(left_panel, text="Delete Task", bg="#F44336", fg="white", 
-                font=("Helvetica", 10, "bold"), pady=5, command=self.delete_task).pack(fill=X, pady=(0, 10))
+        delete_button = Button(left_panel, text="Delete Task",
+                             bg="#E74C3C", fg="#ECF0F1",
+                             activebackground="#CB4335",  # darker shade for click
+                             activeforeground="#ffffff",
+                             font=("Helvetica", 10, "bold"),
+                             pady=5,
+                             command=self.delete_task)
+        delete_button.pack(fill=X, pady=(0, 10))
 
         # Mark as Complete/Incomplete Button
-        Button(left_panel, text="Toggle Complete", bg="#2196F3", fg="white", 
-                font=("Helvetica", 10, "bold"), pady=5, command=self.toggle_complete).pack(fill=X, pady=(0, 10))
+        toggle_button = Button(left_panel, text="Toggle Complete",
+                             bg="#3498DB", fg="#ECF0F1",
+                             activebackground="#2E86C1",  # darker shade for click
+                             activeforeground="#ffffff",
+                             font=("Helvetica", 10, "bold"),
+                             pady=5,
+                             command=self.toggle_complete)
+        toggle_button.pack(fill=X, pady=(0, 10))
 
         # Right Panel - Task List
-        right_panel = Frame(self.root, bg="#ffffff")
+        right_panel = Frame(self.root, bg="#2C3E50")
         right_panel.pack(side=RIGHT, fill=BOTH, expand=True, padx=10, pady=10)
 
         # Search and Filter Frame
-        control_frame = Frame(right_panel, bg="#ffffff")
+        control_frame = Frame(right_panel, bg="#34495E")
         control_frame.pack(fill=X, pady=(0, 10))
 
         # Search
         self.search_var = StringVar()
-        search_entry = Entry(control_frame, textvariable=self.search_var, width=30)
+        search_entry = Entry(control_frame, textvariable=self.search_var, width=30, bg="#ECF0F1", fg="#2C3E50")
         search_entry.pack(side=LEFT, padx=5)
         search_entry.insert(0, "Search tasks...")
         search_entry.bind('<FocusIn>', lambda e: search_entry.delete(0, END) if search_entry.get() == "Search tasks..." else None)
 
         # Search Button
-        Button(control_frame, text="Search", bg="#4CAF50", fg="white", 
-                font=("Helvetica", 10, "bold"), command=self.search_task).pack(side=LEFT, padx=5)
+        search_button = Button(control_frame, text="Search",
+                             bg="#1ABC9C", fg="#ECF0F1",
+                             activebackground="#16A085",  # darker shade for click
+                             activeforeground="#ffffff",
+                             font=("Helvetica", 10, "bold"),
+                             command=self.search_task)
+        search_button.pack(side=LEFT, padx=5)
 
         # Filter
         self.filter_var = StringVar(value="all")
-        filter_frame = Frame(control_frame, bg="#ffffff")
+        filter_frame = Frame(control_frame, bg="#34495E")
         filter_frame.pack(side=RIGHT)
         
-        Label(filter_frame, text="Filter by Status:", bg="#ffffff").pack(side=LEFT, padx=5)
-        Radiobutton(filter_frame, text="All", variable=self.filter_var, value="all", bg="#ffffff", command=self.filter_status).pack(side=LEFT)
-        Radiobutton(filter_frame, text="Pending", variable=self.filter_var, value="pending", bg="#ffffff", command=self.filter_status).pack(side=LEFT)
-        Radiobutton(filter_frame, text="Completed", variable=self.filter_var, value="completed", bg="#ffffff", command=self.filter_status).pack(side=LEFT)
+        Label(filter_frame, text="Filter by Status:", bg="#34495E", fg="#ECF0F1").pack(side=LEFT, padx=5)
+        Radiobutton(filter_frame, text="All", variable=self.filter_var, value="all", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50", command=self.filter_status).pack(side=LEFT)
+        Radiobutton(filter_frame, text="Pending", variable=self.filter_var, value="pending", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50", command=self.filter_status).pack(side=LEFT)
+        Radiobutton(filter_frame, text="Completed", variable=self.filter_var, value="completed", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50", command=self.filter_status).pack(side=LEFT)
 
-        # Task List
+        # Task List with updated style
         columns = ('id', 'title', 'description', 'due_date', 'status')
-        self.tree = ttk.Treeview(right_panel, columns=columns, show='headings')
+        self.tree = ttk.Treeview(right_panel, columns=columns, show='headings', style="Treeview")
         
-        # Define column headings
-        self.tree.heading('id', text='ID')
-        self.tree.heading('title', text='Title')
-        self.tree.heading('description', text='Description')
-        self.tree.heading('due_date', text='Due Date')
-        self.tree.heading('status', text='Status')
+        # Define column headings with updated style
+        for col in columns:
+            self.tree.heading(col, text=col.title())
+            self.tree.column(col, anchor='center')
         
-        # Define column widths
-        self.tree.column('id', width=50)
-        self.tree.column('title', width=150)
-        self.tree.column('description', width=250)
-        self.tree.column('due_date', width=100)
-        self.tree.column('status', width=100)
-
-        # Scrollbar
-        scrollbar = ttk.Scrollbar(right_panel, orient=VERTICAL, command=self.tree.yview)
+        # Adjust column widths
+        self.tree.column('id', width=50, minwidth=50)
+        self.tree.column('title', width=150, minwidth=150)
+        self.tree.column('description', width=250, minwidth=200)
+        self.tree.column('due_date', width=100, minwidth=100)
+        self.tree.column('status', width=100, minwidth=100)
+                    
+        # Scrollbar with updated custom style
+        scrollbar = ttk.Scrollbar(right_panel, orient=VERTICAL, command=self.tree.yview, style="Vertical.TScrollbar")
         self.tree.configure(yscroll=scrollbar.set)
         
         # Pack the treeview and scrollbar
-        self.tree.pack(side=LEFT, fill=BOTH, expand=True)
+        self.tree.pack(side=LEFT, fill=BOTH, expand=True, padx=(0, 10))
         scrollbar.pack(side=RIGHT, fill=Y)
 
     def load_task_list(self):
@@ -257,18 +334,61 @@ class TodoList:
         messagebox.showinfo("Success", f"Task status updated to {task_status}.")
 
     def search_task(self):
-        """Search tasks by keyword."""
-        # Implementation for searching tasks
-        pass
+        # Search for tasks
+        keyword = self.search_var.get().strip()
+        if not keyword:
+            messagebox.showerror("Error", "Please enter a keyword to search!")
+            return
+        # Fetch tasks matching the keyword
+        tasks = db.search_tasks(keyword)
+        if not tasks:
+            messagebox.showinfo("Info", "No tasks found matching the keyword.")
+            return
+        
+        # Clear the current task list
+        self.tree.delete(*self.tree.get_children())
+        
+        # Populate the treeview with the search results
+        for task in tasks:
+            self.tree.insert('', 'end', values=task)
 
     def filter_status(self):
         # Filter tasks by status
         status = self.filter_var.get()
+        
+        # Clear the current task list while preserving the scrollbar style
         self.tree.delete(*self.tree.get_children())
+        
+        # Get filtered tasks
         tasks = db.filter_tasks_by_status(status)
+        
+        # Reinsert tasks with preserved styling
         for task in tasks:
             self.tree.insert('', 'end', values=task)
+            
+        # Ensure scrollbar remains visible and styled
+        self.tree.update_idletasks()
 
+        # Sort column function
+        self.last_clicked = None
+        self.click_count = None
+        def sort_column(clicked):
+            global count
+            count = 0
+            if self.last_clicked != clicked:
+                self.click_count = 0
+                self.last_clicked = clicked
+            self.click_count += 1
+            order = "DESC" if self.click_count % 2 == 0 else "ASC"
+            self.tree.delete(*self.tree.get_children())
+            products = db.sort_products(clicked, order)
+            for product in products:
+                if count % 2 == 0:
+                    self.my_tree.insert("", "end", values=product)
+                else:
+                    self.my_tree.insert("", "end", values=product)
+                count += 1
+            self.last_clicked = clicked
 
     def run(self):
         """Start the application"""
