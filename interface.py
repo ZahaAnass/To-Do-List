@@ -272,7 +272,7 @@ class TodoList:
             new_window.title("Edit Task")
             new_window.geometry("400x500+750+400")
             new_window.resizable(False, False)
-            new_window.configure(bg="#34495E")  # Darker blue-gray background
+            new_window.configure(bg="#34495E") 
 
             # Title Label
             tk.Label(new_window, text="Edit Task", font=("Helvetica", 16, "bold"), bg="#34495E", fg="#ECF0F1").pack(pady=10)
@@ -280,24 +280,24 @@ class TodoList:
             # Title Entry
             tk.Label(new_window, text="Title:", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
             title_entry = Entry(new_window, font=("Helvetica", 12), bg="#ECF0F1", fg="#2C3E50", relief=FLAT)
-            title_entry.insert(0, task[1])  # Pre-fill with current title
+            title_entry.insert(0, task[1])
             title_entry.pack(fill="x", pady=5, padx=10)
 
             # Description Entry
             tk.Label(new_window, text="Description:", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
             desc_entry = Text(new_window, font=("Helvetica", 12), height=5, bg="#ECF0F1", fg="#2C3E50", relief=FLAT)
-            desc_entry.insert("1.0", task[2])  # Pre-fill with current description
+            desc_entry.insert("1.0", task[2])
             desc_entry.pack(fill="x", pady=5, padx=10)
 
             # Due Date Entry
             tk.Label(new_window, text="Due Date (YYYY-MM-DD):", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
             due_date_entry = Entry(new_window, font=("Helvetica", 12), bg="#ECF0F1", fg="#2C3E50", relief=FLAT)
-            due_date_entry.insert(0, task[3])  # Pre-fill with current due date
+            due_date_entry.insert(0, task[3]) date
             due_date_entry.pack(fill="x", pady=5, padx=10)
 
             # Status Radio Buttons
             tk.Label(new_window, text="Status:", font=("Helvetica", 12), bg="#34495E", fg="#ECF0F1").pack(anchor="w", padx=10)
-            status_var = StringVar(value=task[4])  # Pre-fill with current status
+            status_var = StringVar(value=task[4])
             status_frame = Frame(new_window, bg="#34495E")
             status_frame.pack(fill="x", pady=5, padx=10)
             Radiobutton(status_frame, text="Pending", variable=status_var, value="pending", bg="#34495E", fg="#ECF0F1", selectcolor="#2C3E50").pack(side=LEFT, padx=5)
