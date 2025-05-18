@@ -62,6 +62,6 @@ A feature-rich Todo List application built with Python and Tkinter.
 To-Do-List/
 ├── todo_app.py          # Main application file
 ├── database.py          # Handles SQLite database operations
-├── ui_components.py     # Contains reusable UI components
+├── interface.py     # Contains reusable UI components
 ├── README.md            # Project documentation
 ```
